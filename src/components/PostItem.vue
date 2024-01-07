@@ -5,7 +5,10 @@
             <div><strong>Description:</strong> {{ post.body }}</div>
         </div>
         <div class="post__btns">
-            <my-button>Delete</my-button>
+            <my-button 
+                @click="$emit('remove', post as Post)">
+                Delete
+            </my-button>
         </div>
     </div>
 </template>
@@ -16,9 +19,11 @@ import type { Post } from '@/types/Post';
 
 export default defineComponent({
     props: {        
-        post: Object as PropType<Post>,
-        required: true,
-    }       
+        post: {
+            type: Object as PropType<Post>,
+            required: true,
+        }
+    }
 })
 </script>
 

@@ -1,7 +1,22 @@
 <template>
     <div class="app">
-        <post-form @create="createPost"></post-form>
-        <post-list :posts="posts"></post-list>    
+        <h1>Post Page</h1>
+        <my-button
+            @click="showDialog"
+            style="margin: 15px 0;">
+            Create Post
+        </my-button>
+        <my-dialog v-model:show="dialogVisible">
+            <post-form 
+                @create="createPost"
+            />
+        </my-dialog>        
+        <post-list 
+            :posts="posts" 
+            @remove="removePost"
+            v-if="!isPostsLoading"
+        />
+        <div v-else>Loading...</div>
     </div>    
 </template>
 
@@ -10,25 +25,44 @@ import PostForm from "@/components/PostForm.vue";
 import PostList from "@/components/PostList.vue";
 import type { Post } from '@/types/Post';
 import { defineComponent } from "vue";
+import axios from 'axios';
 
 export default defineComponent({
     components: {
-        PostList, PostForm
+        PostList, PostForm,    
     },
     data() {
         return {
-            posts: [
-                {id: 1, title: 'TypeScript 1', body: 'Description 1'},
-                {id: 2, title: 'TypeScript 2', body: 'Description 2'},
-                {id: 3, title: 'TypeScript 3', body: 'Description 3'},
-                {id: 4, title: 'TypeScript 4', body: 'Description 4'},
-            ] as Post[],
+            posts: [] as Post[],
+            dialogVisible: false as boolean,
+            isPostsLoading: false as boolean,
         }            
     },
     methods: {
-        createPost(post: Post) {
+        createPost(post: Post): void {
             this.posts.push(post);
+            this.dialogVisible = false;
         },
+        removePost(post: Post): void {
+            this.posts = this.posts.filter(p => p.id !== post.id);
+        },
+        showDialog(): void {
+            this.dialogVisible = true;
+        },
+        async fetchPosts() {
+            try {
+                this.isPostsLoading = true;
+                const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
+                this.posts = response.data;
+            } catch(e: any) {
+                alert(e.message);
+            } finally {
+                this.isPostsLoading = false;
+            }
+        }
+    },
+    mounted() {
+        this.fetchPosts();
     }
 })
 </script>
@@ -37,7 +71,7 @@ export default defineComponent({
 * {
   margin: 0;
   padding: 0;
-  box-sizing: borer-box;
+  box-sizing: border-box;
 }
 
 .app {
