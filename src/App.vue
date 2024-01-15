@@ -27,6 +27,20 @@
             v-if="!isPostsLoading"
         />
         <div v-else>Loading...</div>
+        <!-- TODO: TBD as separate component. totalPages should be sent as props -->
+        <div class="page__wrapper">
+            <div 
+                v-for="pageNum in totalPages"
+                :key="pageNum"
+                class="page"
+                :class="{
+                    'current-page': pageNum === page
+                }"
+                @click="changePage(pageNum)"
+                >
+                {{ pageNum }}
+            </div>
+        </div> 
     </div>    
 </template>
 
@@ -49,6 +63,9 @@ export default defineComponent({
             isPostsLoading: false as boolean,
             selectedSort: "" as string,
             searchQuery: "" as string,
+            page: 1 as number,
+            limit: 10 as number,
+            totalPages: 0 as number,
             sortOptions: [
                 {id: "body", name: "Body"},
                 {id: "title", name: "Title"},                
@@ -69,7 +86,13 @@ export default defineComponent({
         async fetchPosts() {
             try {
                 this.isPostsLoading = true;
-                const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
+                const response = await axios.get("https://jsonplaceholder.typicode.com/posts", {
+                    params: {
+                        _limit: this.limit,
+                        _page: this.page
+                    }
+                });
+                this.totalPages = Math.ceil(response.headers["x-total-count"] / this.limit);
                 this.posts = response.data;
             } catch(e: any) {
                 alert(e.message);
@@ -77,6 +100,9 @@ export default defineComponent({
                 this.isPostsLoading = false;
             }
         },
+        changePage(pageNum: number): void {
+            this.page = pageNum;
+        }
     },
     mounted() {
         this.fetchPosts();
@@ -92,6 +118,11 @@ export default defineComponent({
             return this.sortedPosts.filter((post: Post) => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
         } 
     },
+    watch: {
+        page(): void {
+            this.fetchPosts();
+        }
+    }
 })
 </script>
 
@@ -110,6 +141,20 @@ export default defineComponent({
     margin: 15px 0;
     display: flex;
     justify-content: space-between;
+}
+
+.page__wrapper {
+    display: flex;
+    margin-top: 15px;
+}
+
+.page {
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.current-page {
+    border: 2px solid teal;
 }
 
 </style>
