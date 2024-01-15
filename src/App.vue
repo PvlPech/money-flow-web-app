@@ -1,18 +1,28 @@
 <template>
     <div class="app">
         <h1>Post Page</h1>
-        <my-button
-            @click="showDialog"
-            style="margin: 15px 0;">
-            Create Post
-        </my-button>
+        <my-input
+            v-model="searchQuery"
+            placeholder="Search"
+        />
+        <div class="app__btns">
+            <my-button
+                @click="showDialog">
+                Create Post
+            </my-button>
+            <my-select
+                v-model="selectedSort"
+                :options="sortOptions"
+            />
+        </div>
+        
         <my-dialog v-model:show="dialogVisible">
             <post-form 
                 @create="createPost"
             />
         </my-dialog>        
         <post-list 
-            :posts="posts" 
+            :posts="sortedAndSearchedPosts" 
             @remove="removePost"
             v-if="!isPostsLoading"
         />
@@ -24,6 +34,7 @@
 import PostForm from "@/components/PostForm.vue";
 import PostList from "@/components/PostList.vue";
 import type { Post } from '@/types/Post';
+import type { Option } from '@/types/Option';
 import { defineComponent } from "vue";
 import axios from 'axios';
 
@@ -36,6 +47,12 @@ export default defineComponent({
             posts: [] as Post[],
             dialogVisible: false as boolean,
             isPostsLoading: false as boolean,
+            selectedSort: "" as string,
+            searchQuery: "" as string,
+            sortOptions: [
+                {id: "body", name: "Body"},
+                {id: "title", name: "Title"},                
+            ] as Option[],
         }            
     },
     methods: {
@@ -59,11 +76,22 @@ export default defineComponent({
             } finally {
                 this.isPostsLoading = false;
             }
-        }
+        },
     },
     mounted() {
         this.fetchPosts();
-    }
+    },
+    computed: {
+        sortedPosts(): Post[] {
+            if (this.selectedSort === "") {
+                return this.posts;                
+            }
+            return [...this.posts].sort((a: Post, b: Post) => a[this.selectedSort].localeCompare(b[this.selectedSort]));
+        },
+        sortedAndSearchedPosts(): Post[] {
+            return this.sortedPosts.filter((post: Post) => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
+        } 
+    },
 })
 </script>
 
@@ -76,6 +104,12 @@ export default defineComponent({
 
 .app {
     padding: 20px;
+}
+
+.app__btns {
+    margin: 15px 0;
+    display: flex;
+    justify-content: space-between;
 }
 
 </style>
