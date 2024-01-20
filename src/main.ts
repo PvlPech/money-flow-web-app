@@ -5,12 +5,16 @@ import MyInput from "@/components/ui/MyInput.vue";
 import MyDialog from "@/components/ui/MyDialog.vue";
 import MySelect from "@/components/ui/MySelect.vue";
 import router from "@/router/router";
+import VIntersection from "@/directives/VIntersection";
+import VFocus from "@/directives/VFocus";
 
 const app = createApp(App);
-app.component("my-button", MyButton);
-app.component("my-input", MyInput);
-app.component("my-dialog", MyDialog);
-app.component("my-select", MySelect);
 app
+    .component("my-button", MyButton)
+    .component("my-input", MyInput)
+    .component("my-dialog", MyDialog)
+    .component("my-select", MySelect)
+    .directive("intersection", VIntersection)
+    .directive("focus", VFocus)
     .use(router)
     .mount('#app');

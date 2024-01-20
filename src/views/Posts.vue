@@ -2,6 +2,7 @@
     <div>
         <h1>Post Page</h1>
         <my-input
+            v-focus
             v-model="searchQuery"
             placeholder="Search"
         />
@@ -27,7 +28,7 @@
             v-if="!isPostsLoading"
         />
         <div v-else>Loading...</div>
-        <div  ref="observer"></div>
+        <div v-intersection="fetchMorePosts"></div>
         <!-- <div class="page__wrapper">
             <div 
                 v-for="pageNum in totalPages"
@@ -83,7 +84,7 @@ export default defineComponent({
         showDialog(): void {
             this.dialogVisible = true;
         },
-        async fetchPosts() {
+        async fetchPosts(): Promise<void> {
             try {
                 this.isPostsLoading = true;
                 const response = await axios.get("https://jsonplaceholder.typicode.com/posts", {
@@ -103,7 +104,7 @@ export default defineComponent({
         // changePage(pageNum: number): void {
         //     this.page = pageNum;
         // },
-        async loadMorePosts() {
+        async fetchMorePosts(): Promise<void> {
             try {
                 this.page += 1;
                 const response = await axios.get("https://jsonplaceholder.typicode.com/posts", {
@@ -121,17 +122,17 @@ export default defineComponent({
     },
     mounted() {
         this.fetchPosts();
-        const options = {
-            rootMargin: "0px",
-            threshold: 1.0,
-        } as IntersectionObserverInit;
-        const callback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver): IntersectionObserverCallback => {
-            if(entries[0].isIntersecting && this.page < this.totalPages) {
-                this.loadMorePosts();
-            }
-        };
-        const observer = new IntersectionObserver(callback, options);
-        observer.observe(this.$refs.observer as Element);
+        // const options = {
+        //     rootMargin: "0px",
+        //     threshold: 1.0,
+        // } as IntersectionObserverInit;
+        // const callback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver): IntersectionObserverCallback => {
+        //     if(entries[0].isIntersecting && this.page < this.totalPages) {
+        //         this.fetchMorePosts();
+        //     }
+        // };
+        // const observer = new IntersectionObserver(callback, options);
+        // observer.observe(this.$refs.observer as Element);
     },
     computed: {
         sortedPosts(): Post[] {
