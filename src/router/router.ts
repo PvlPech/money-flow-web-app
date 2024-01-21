@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Main from '@/views/Main.vue';
 import Posts from '@/views/Posts.vue';
 import PostDetails from '@/views/PostDetails.vue';
+import PostsWithStore from '@/views/PostsWithStore.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,11 @@ const router = createRouter({
         name: "post-details",
         component: PostDetails
     },
+    {
+      path: "/store",
+      name: "post-woth-store",
+      component: PostsWithStore
+  },
   ]
 })
 
